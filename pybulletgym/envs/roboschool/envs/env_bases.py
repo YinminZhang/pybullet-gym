@@ -97,6 +97,8 @@ class BaseBulletEnv(gym.Env):
 			renderer=pybullet.ER_BULLET_HARDWARE_OPENGL
 			)
 		rgb_array = np.array(px)
+		if len(rgb_array.shape) == 1:
+			rgb_array = np.reshape(rgb_array, (self._render_height, self._render_width, 4))
 		rgb_array = rgb_array[:, :, :3]
 		return rgb_array
 

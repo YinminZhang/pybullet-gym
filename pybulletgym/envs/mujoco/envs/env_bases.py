@@ -22,7 +22,7 @@ class BaseBulletEnv(gym.Env):
 		self.scene = None
 		self.physicsClientId = -1
 		self.ownsPhysicsClient = 0
-		self.camera = Camera()
+		self.camera = Camera(self)
 		self.isRender = render
 		self.robot = robot
 		self._seed()
@@ -81,6 +81,7 @@ class BaseBulletEnv(gym.Env):
 			if hasattr(self.robot,'body_xyz'):
 				base_pos = self.robot.body_xyz
 
+		self.camera_adjust()
 		view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
 			cameraTargetPosition=base_pos,
 			distance=self._cam_dist,
@@ -97,6 +98,8 @@ class BaseBulletEnv(gym.Env):
 			renderer=pybullet.ER_BULLET_HARDWARE_OPENGL
 			)
 		rgb_array = np.array(px)
+		if len(rgb_array.shape)==1:
+			rgb_array = np.reshape(rgb_array, (self._render_height, self._render_width, 4))
 		rgb_array = rgb_array[:, :, :3]
 		return rgb_array
 
@@ -122,11 +125,12 @@ class BaseBulletEnv(gym.Env):
 
 
 class Camera:
-	def __init__(self):
+	def __init__(self, env):
+		self.env = env
 		pass
 
 	def move_and_look_at(self,i,j,k,x,y,z):
 		lookat = [x,y,z]
 		distance = 10
 		yaw = 10
-		self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+		self.env._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)

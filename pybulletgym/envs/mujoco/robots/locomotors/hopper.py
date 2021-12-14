@@ -18,6 +18,10 @@ class Hopper(WalkerBase, MJCFBasedRobot):
     def calc_state(self):
         qpos = np.array([j.get_position() for j in self.ordered_joints], dtype=np.float32).flatten()  # shape (6,)
         qvel = np.array([j.get_velocity() for j in self.ordered_joints], dtype=np.float32).flatten()  # shape (6,)
+        body_pose = self.robot_body.pose()
+        parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
+        self.body_xyz = (parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2]
+                         )  # torso z is more informative than mean z
 
         return np.concatenate([
             qpos.flat[1:],                   # self.sim.data.qpos.flat[1:],
